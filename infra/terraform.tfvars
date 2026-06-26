@@ -1,9 +1,11 @@
-aws_region         = "us-east-2"
-instance_type      = "t3.micro"
-key_name           = "k8s_multi_new"
-project_name       = "jenkins-aws-demo"
-vpc_cidr           = "10.0.0.0/16"
-public_subnet_cidr = "10.0.1.0/24"
-az1                = "us-east-2a"
-ami_id             = "ami-0049e4b5ba14b6d36"
+cluster_name   = "fintech-eks"
 
+node_group_name = "fintech-workers"
+
+instance_type = "t3.medium"
+
+desired_size = 2
+
+min_size = 1
+
+max_size = 3
