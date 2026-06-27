@@ -72,10 +72,10 @@ pipeline {
             withSonarQubeEnv('SonarQube') {
                 dir('fintech-app/frontend') {
                     sh """
-                        ${scannerHome}/bin/sonar-scanner \
-                        -Dsonar.projectKey=fintech-app \
-                        -Dsonar.projectName=fintech-app \
-                        -Dsonar.sources=.
+                    ${scannerHome}/bin/sonar-scanner \
+                    -Dsonar.projectKey=fintech-app \
+                    -Dsonar.projectName=fintech-app \
+                    -Dsonar.sources=.
                     """
                 }
             }
