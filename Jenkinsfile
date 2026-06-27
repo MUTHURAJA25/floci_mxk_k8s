@@ -97,7 +97,7 @@ pipeline {
     }
   } 
 
-        }
+        
 
         stage('Trivy Scan') {
 
@@ -146,7 +146,7 @@ pipeline {
             }
 
         }
-
+    
         stage('Terraform Destroy') {
 
             when {
@@ -163,5 +163,5 @@ pipeline {
 
         }
 
-    }
+    
 
