@@ -92,17 +92,10 @@ pipeline {
         }
 
         stage('Docker Build') {
-
-            steps {
-
-                dir('app/frontend') {
-
-                    sh '''
-                    docker build -t muthuraja25/floci-k8s:latest .
-                    '''
-                }
-
-            }
+    dir('fintech-app/frontend') {
+        sh 'docker build -t ${DOCKER_USER}/floci-k8s:latest .'
+    }
+  } 
 
         }
 
