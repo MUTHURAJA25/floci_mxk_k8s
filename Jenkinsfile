@@ -65,8 +65,8 @@ pipeline {
             }
         }
 
-        // stage('SonarQube Scan') 
-     steps {
+         stage('SonarQube Scan') 
+           steps {
          sh '''
          /opt/sonar-scanner/bin/sonar-scanner \
          -Dsonar.projectKey=floci-k8s \
