@@ -44,7 +44,6 @@ pipeline {
             when {
                 expression { !params.DESTROY }
             }
-
             steps {
                 dir('infra') {
                     sh 'terraform plan -out=tfplan'
@@ -54,87 +53,75 @@ pipeline {
 
         stage('Unit Test') {
             steps {
-                dir('app/frontend') {
+                dir('fintech-app/frontend') {
                     sh '''
-                    if [ -f package.json ]; then
-                        npm install
-                        npm run test || true
-                    fi
+                        if [ -f package.json ]; then
+                            npm install
+                            npm test || true
+                        fi
                     '''
                 }
             }
         }
 
-         // stage('SonarQube Scan') {
-//     steps {
-//         sh '''
-//         /opt/sonar-scanner/bin/sonar-scanner \
-//         -Dsonar.projectKey=floci-k8s \
-//         -Dsonar.sources=. \
-//         -Dsonar.host.url=http://172.17.0.4:9000 \
-//         -Dsonar.token=$SONAR_TOKEN
-//         '''
-//     }
-// }
- 
+        // Uncomment after Sonar Scanner is installed
+        /*
+        stage('SonarQube Scan') {
+            steps {
+                sh '''
+                /opt/sonar-scanner/bin/sonar-scanner \
+                -Dsonar.projectKey=floci-k8s \
+                -Dsonar.sources=. \
+                -Dsonar.host.url=http://172.17.0.4:9000 \
+                -Dsonar.token=$SONAR_TOKEN
+                '''
+            }
+        }
+        */
 
         stage('Terraform Apply') {
-
             when {
                 expression { !params.DESTROY }
             }
-
             steps {
                 dir('infra') {
-                    sh 'terraform apply tfplan'
+                    sh 'terraform apply -auto-approve tfplan'
                 }
             }
         }
 
         stage('Docker Build') {
-    dir('fintech-app/frontend') {
-        sh 'docker build -t ${DOCKER_USER}/floci-k8s:latest .'
-    }
-  } 
-
-        
+            steps {
+                dir('fintech-app/frontend') {
+                    sh '''
+                    docker build -t ${DOCKER_USER}/floci-k8s:latest .
+                    '''
+                }
+            }
+        }
 
         stage('Trivy Scan') {
-
             steps {
-
                 sh '''
-                trivy image \
-                --severity HIGH,CRITICAL \
-                muthuraja25/floci-k8s:latest
+                trivy image --severity HIGH,CRITICAL ${DOCKER_USER}/floci-k8s:latest
                 '''
-
             }
-
         }
 
         stage('Docker Push') {
-
             steps {
-
                 sh '''
                 echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-
-                docker push muthuraja25/floci-k8s:latest
+                docker push ${DOCKER_USER}/floci-k8s:latest
                 '''
-
             }
-
         }
 
         stage('Deploy Kubernetes') {
-
             when {
                 expression { !params.DESTROY }
             }
-
             steps {
-
                 sh '''
                 kubectl apply -f kubernetes/namespace.yaml
                 kubectl apply -f kubernetes/deployment.yaml
@@ -142,26 +129,19 @@ pipeline {
                 kubectl apply -f kubernetes/ingress.yaml
                 kubectl apply -f kubernetes/hpa.yaml
                 '''
-
             }
-
         }
-    
-        stage('Terraform Destroy') {
 
+        stage('Terraform Destroy') {
             when {
                 expression { params.DESTROY }
             }
-
             steps {
-
                 dir('infra') {
                     sh 'terraform destroy -auto-approve'
                 }
-
             }
-
         }
-
-    
+    }
+}
 
